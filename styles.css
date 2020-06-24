@@ -1,0 +1,15 @@
+.encabezado {
+  background-color: coral;
+}
+
+.cuerpo {
+  background-color: darkgoldenrod;
+}
+
+.navegador {
+  background-color: lightblue;
+}
+
+.avatar {
+  height: 150px;
+}
