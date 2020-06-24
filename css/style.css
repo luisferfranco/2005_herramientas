@@ -1,0 +1,22 @@
+.logo {
+  height: 75px;
+}
+
+.avatar {
+  height: 130px;
+}
+
+.captura {
+  height: 64px;
+  width: 64px;
+  object-fit: cover;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #000000;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+body {
+  color: #333333;
+}
