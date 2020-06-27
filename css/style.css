@@ -20,3 +20,9 @@ h1, h2, h3, h4, h5, h6 {
 body {
   color: #333333;
 }
+
+.grafica {
+  width: 100%;
+  height: 450px;
+  background-color: papayawhip;
+}
