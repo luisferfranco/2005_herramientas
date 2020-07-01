@@ -6,6 +6,7 @@
   <title>Mis Proyectos de D3</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/d3.js"></script>
 </head>
 <body>
 
@@ -38,27 +39,70 @@
 
       <!-- proyectos -->
       <div class="col-md-8">
-        <div class="card shadow">
-          <div class="card-header">
-            <h3>Proyectos</h3>
-          </div>
-          <div class="card-body">
-            <div class="media mb-4">
-              <img src="img/tabla-rayas.jpg" class="captura rounded mr-3">
-              <div class="media-body">
-                <a href="01b-seleccion.html">
-                  <h5 class="mt-0">Tabla a Rayas</h5>
-                </a>
-                Utilizamos D3 para modificar los atributos de los elementos TD que van dentro de una tabla para hacerla rayada
-              </div>
-            </div>
+        <div class="grafica mb-4 shadow" id="grafica">
 
-          </div>
+          <!-- table>(thead>tr>th*2)+(tbody>(tr>td*2)*5) -->
+          <table>
+            <thead>
+              <tr>
+                <th>Movimiento</th>
+                <th>Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cargo</td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td>Cargo</td>
+                <td>59</td>
+              </tr>
+              <tr>
+                <td>Abono</td>
+                <td>75</td>
+              </tr>
+              <tr>
+                <td>Cargo</td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td>Abono</td>
+                <td>100</td>
+              </tr>
+            </tbody>
+          </table>
+
         </div>
+        <h3>Titulo</h3>
+        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cupiditate beatae id, non, ipsa animi reprehenderit odio eius enim quidem iure esse autem est quaerat, laborum rerum? Neque doloremque architecto quam?</p>
+        <p>Eligendi libero ipsum nemo nobis quod numquam at aliquid, perferendis minus quos ab placeat accusantium amet ullam veniam et minima doloremque corporis voluptatibus consequuntur quibusdam, cupiditate similique laboriosam? Non, fugit.</p>
       </div>
       <!-- /proyectos -->
     </div>
   </div>
+
+<script>
+
+  tr = d3.selectAll('tr')
+
+  encabezado = tr.nodes()[0]
+  d3.select(encabezado)
+    .style('background-color', 'black')
+    .style('color', '#FFCC00')
+
+  tr.each(function(d, i) {
+    if (i != 0) {
+      elemento = tr.nodes()[i]
+      if ((i % 2) == 0) {
+        d3.select(elemento)
+          .classed('banda', true)
+      }
+    }
+  })
+
+
+</script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
