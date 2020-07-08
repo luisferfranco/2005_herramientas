@@ -37,3 +37,13 @@ body {
 .banda {
   background-color: #ff0000;
 }
+
+.hbar {
+  height: 35px;
+  color: #ffff00;
+  background-color: #333333;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  text-align: right;
+  padding-right: 10px;
+}
