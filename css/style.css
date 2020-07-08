@@ -36,6 +36,7 @@ body {
 
 .banda {
   background-color: #ff0000;
+<<<<<<< HEAD
 }
 
 .hbar {
@@ -46,4 +47,6 @@ body {
   margin-bottom: 5px;
   text-align: right;
   padding-right: 10px;
+=======
+>>>>>>> 6793d5bdbe1b8fe563ff7e005134c2e4c19ca818
 }
