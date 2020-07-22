@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Proyectos de D3</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/d3.js"></script>
+</head>
+<body>
+
+  <!-- navbar -->
+  <div class="navbar-navbar-expand-lg navbar-light bg-light shadow mb-4">
+    <div class="container-fluid-nav text-center">
+      <a href="#"><img src="/img/unir.png" class="logo"></a>
+    </div>
+  </div>
+  <!-- /navbar -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h1>Herramientas de Visualización</h1>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <!-- Biografia -->
+      <div class="col-md-4">
+        <div class="text-center">
+          <img src="/img/PeterDrucker.png" class="avatar rounded-circle"><br>
+          <h3>Peter Drucker</h3>
+        </div>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis, molestias iure! Fuga qui deserunt, repudiandae corrupti voluptatibus magni necessitatibus totam nesciunt magnam sit ipsa eaque ipsam optio asperiores! Enim, laboriosam.</p>
+        <p>Odit reprehenderit quasi aperiam sit porro nam iste vel cupiditate, ipsam impedit alias exercitationem sed rerum asperiores cum unde voluptatum at minima inventore est reiciendis aliquid tempore deserunt. Nesciunt, iusto?</p>
+      </div>
+      <!-- /biografia -->
+
+      <!-- proyectos -->
+      <div class="col-md-8">
+
+        <div>
+          <button class="btn btn-outline-primary" onclick="select('Golfo Pérsico')">Golfo Pérsico</button>
+          <button class="btn btn-outline-primary" onclick="select('Asia')">Asia</button>
+          <button class="btn btn-outline-primary" onclick="select('América')">América</button>
+          <button class="btn btn-outline-primary" onclick="select('Este Europeo')">Este Europeo</button>
+          <button class="btn  btn-outline-danger" onclick="select('Todos')">Todos</button>
+
+          <hr>
+
+          <button class="btn btn-outline-success" onclick="ordenar('nombre')">Por Nombre</button>
+          <button class="btn btn-outline-danger"  onclick="ordenar('altura')">Por Altura</button>
+
+        </div>
+
+        <div class="grafica mb-4 shadow" id="grafica">
+        </div>
+
+        <h3>Trabajando con Arreglos</h3>
+        <p>Usaremos un arreglo de javascript como origen de datos</p>
+      </div>
+      <!-- /proyectos -->
+    </div>
+  </div>
+
+<script>
+
+  colores = d3.scaleOrdinal()
+              .domain(['América', 'Golfo Pérsico', 'Asia', 'Este Europeo'])
+              .range(['#8888FF', '#22cc22', '#dddddd', '#cc0000'])
+
+  y = d3.scaleLinear()
+  ancho = +d3.select('#grafica').style('width').slice(0,-2)
+
+  datos = []
+
+  comparaPorNombre = function(a, b) {
+    return a.edificio > b.edificio ? 1 : -1
+  }
+  comparaPorTamano = function(a, b) {
+    return a.oficial > b.oficial ? 1 : -1
+  }
+
+  function render(data, comparador=null) {
+    hbars = d3.select('#grafica')
+              .selectAll('div.hbar')
+              .data(data)
+
+    hbars.enter()
+          .append('div').attr('class', 'hbar')
+          .merge(hbars)
+            .style('width', function(d) {
+              return y(d.oficial) + 'px'
+            })
+            .style('background-color', function(d) {
+              return colores(d.region)
+            })
+            .text(function(d) {
+              return d.edificio + ' ' + d.oficial
+            })
+
+    if (comparador)
+      hbars.sort(comparador)
+
+    d3.selectAll('div.hbar')
+        .data(data)
+        .exit()
+        .remove()
+  }
+
+  function load() {
+    d3.csv('/datos/edificios.csv')
+      .then(function(data) {
+        datos = data
+
+        ymax = d3.max(data, function(d) {
+          return +d.oficial
+        })
+
+        y.domain([0, ymax])
+          .range([0, ancho])
+
+        render(data)
+      })
+  }
+
+  function select(region) {
+    console.log(region)
+    d = datos.filter(function (d, i) {
+      if (region == 'Todos') {
+        return true
+      }
+
+      return region == d.region
+    })
+    console.log(d)
+    render(d)
+  }
+
+  function ordenar(como) {
+    comparador = (como == 'nombre') ? comparaPorNombre : comparaPorTamano
+
+    render(datos, comparador)
+  }
+
+  load()
+
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>
