@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Proyectos de D3</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/d3.js"></script>
+</head>
+<body>
+
+  <!-- navbar -->
+  <div class="navbar-navbar-expand-lg navbar-light bg-light shadow mb-4">
+    <div class="container-fluid-nav text-center">
+      <a href="#"><img src="/img/unir.png" class="logo"></a>
+    </div>
+  </div>
+  <!-- /navbar -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h1>Herramientas de Visualización</h1>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <!-- proyectos -->
+      <div class="col-md-12">
+
+        <div id="grafica" class="viz mb-4 shadow"></div>
+
+        <h3>Titulo</h3>
+      </div>
+      <!-- /proyectos -->
+    </div>
+  </div>
+
+<script>
+ancho = d3.select('#grafica').style('width').slice(0,-2)
+alto  = ancho * 9 / 16
+
+svg = d3.select('#grafica')
+        .append('svg')
+        .attr('width', ancho)
+        .attr('height', alto)
+
+x = d3.scaleLinear()
+      .range([0, ancho])
+y = d3.scaleLinear()
+      .range([0, alto])
+r = d3.scaleLinear()
+      .range([5, 50])
+
+function render(data) {
+
+  oficialMax = d3.max(data, function(d) { return d.oficial })
+  oficialMin = d3.min(data, d => d.oficial)
+  console.log('La altura mas alta es ' + oficialMax)
+  console.log('La altura mas baja es ' + oficialMin)
+
+  x.domain([oficialMin, oficialMax])
+  y.domain([d3.min(data, d => d.piso),
+            d3.max(data, d => d.piso)])
+  r.domain([d3.min(data, d => d.ultimopiso),
+            d3.max(data, d => d.ultimopiso)])
+
+  circles = svg.selectAll('circle')
+                .data(data)
+
+  circles.enter()
+          .append('circle')
+          .attr('cx', function(d) { return x(d.oficial) })
+          .attr('cy', function(d) { return y(d.piso)})
+          .attr('r', function(d) { return r(d.ultimopiso) })
+          .attr('fill', 'orange')
+}
+
+
+function load() {
+  d3.csv('/datos/edificios.csv').then(function(data) {
+    data.forEach(function(d) {
+      d.oficial = +d.oficial
+      d.piso = +d.piso
+      d.ultimopiso = +d.ultimopiso
+    })
+    render(data)
+  })
+}
+
+load()
+
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>
