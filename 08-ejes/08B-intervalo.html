@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Proyectos de D3</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/d3.js"></script>
+</head>
+<body>
+
+  <!-- navbar -->
+  <div class="navbar-navbar-expand-lg navbar-light bg-light shadow mb-4">
+    <div class="container-fluid-nav text-center">
+      <a href="#"><img src="/img/unir.png" class="logo"></a>
+    </div>
+  </div>
+  <!-- /navbar -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h1>Herramientas de Visualización</h1>
+      </div>
+    </div>
+
+      <!-- proyecto -->
+      <div class="col-md-12">
+        <div class="grafica mb-4 shadow" id="grafica">
+        </div>
+        <h3>Titulo</h3>
+        <p>Descripción</p>
+      </div>
+      <!-- /proyectos -->
+    </div>
+  </div>
+
+<script>
+ancho_total = d3.select('#grafica').style('width').slice(0,-2)
+alto_total  = d3.select('#grafica').style('height').slice(0, -2)
+
+margin = {left: 75, right: 10, top: 50, bottom: 150}
+ancho = ancho_total - margin.left - margin.right
+alto  = alto_total - margin.top - margin.bottom
+
+svg = d3
+        .select('#grafica')
+        .append('svg')
+        .attr('width', ancho_total)
+        .attr('height', alto_total)
+
+g = svg
+      .append('g')
+      .attr('width', ancho_total - margin.left - margin.right)
+      .attr('height', alto_total - margin.top - margin.bottom)
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
+titulo = svg
+            .append('text')
+            .attr('y', margin.top / 2)
+            .attr('x', ancho / 2)
+            .text('Altura Oficial (m)')
+
+titulos  = ['Altura Oficial (m)', 'Altura Último Piso (m)',
+            'Número de Pisos']
+columnas = ['oficial', 'ultimopiso', 'piso']
+icol     = 0
+
+y = d3
+      .scaleLinear()
+      .range([alto, 0])
+x = d3
+      .scaleBand()
+
+yAxisCall = d3
+          .axisLeft(y)
+          .ticks(10)
+          .tickFormat((d) => d + ' m.')
+
+xAxisCall = d3.axisBottom(x)
+
+
+function render(data) {
+  y.domain([0, d3.max(data, (d) => d[columnas[icol]])])
+
+  titulo
+        .text(titulos[icol])
+
+  g
+    .append('g')
+    .attr('transform', `translate(0, ${alto})`)
+    .call(xAxisCall)
+    .selectAll('text')
+      .attr('y', -5)
+      .attr('x', -10)
+      .attr('text-anchor', 'end')
+      .attr('transform', 'rotate(-90)')
+
+
+  g
+    .append('g')
+    .call(yAxisCall)
+
+
+  // Join
+  rects = g
+    .selectAll('rect')
+    .data(data)
+
+  rects
+    .enter()
+      .append('rect')
+      .attr('x', (d) => x(d.edificio))
+      .attr('y', alto)
+      .attr('width', x.bandwidth())
+      .attr('height', 0)
+    .merge(rects)
+      .transition()
+      .duration(500)
+      .attr('y', (d) => y(d[columnas[icol]]))
+      .attr('height', (d) => alto - y(d[columnas[icol]]))
+      .attr('fill', '#008800')
+
+  rects
+    .exit()
+    .remove()
+}
+
+function load() {
+  d3.csv('/datos/edificios.csv').then(function(data) {
+    data.forEach((d) => {
+      d.ano = +d.ano
+      d.antena = +d.antena
+      d.oficial = +d.oficial
+      d.piso = +d.piso
+      d.puesto = +d.puesto
+      d.ultimopiso = +d.ultimopiso
+    })
+
+    data = data.slice(0, 10)
+
+    x
+        .domain(data.map(d => d.edificio))
+        .range([0, ancho])
+        .paddingInner(0.05)
+        .paddingOuter(0.5)
+
+    d3.interval(() => {
+      render(data)
+
+      icol++
+      if (icol == 3) icol = 0
+    }, 1000)
+
+  })
+}
+
+load()
+
+
+
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>
