@@ -49,6 +49,10 @@ r = d3.scaleLinear()
 function render(data, year) {
 
   data = data.filter((d) => d.year == year )
+<<<<<<< HEAD
+=======
+  console.log(data)
+>>>>>>> 6ebf0922a6f34c916f7b98160bd40373cd533a02
 
   xAxisCall = d3
                 .axisBottom(x)
@@ -137,6 +141,10 @@ function load() {
     years = d3
               .map(data, (d) => d.year)
               .keys()
+<<<<<<< HEAD
+=======
+    console.log(years)
+>>>>>>> 6ebf0922a6f34c916f7b98160bd40373cd533a02
 
     // 5. Creamos el intervalo de animación
     d3.interval((d) => {
