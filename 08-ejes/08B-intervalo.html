@@ -78,7 +78,16 @@ yAxisCall = d3
           .ticks(10)
           .tickFormat((d) => d + ' m.')
 
-xAxisCall = d3.axisBottom(x)
+xAxisCall = d3
+              .axisBottom(x)
+
+
+xGroup = g
+          .append('g')
+          .attr('transform', `translate(0, ${alto})`)
+
+yGroup = g
+          .append('g')
 
 
 function render(data) {
@@ -87,9 +96,7 @@ function render(data) {
   titulo
         .text(titulos[icol])
 
-  g
-    .append('g')
-    .attr('transform', `translate(0, ${alto})`)
+  xGroup
     .call(xAxisCall)
     .selectAll('text')
       .attr('y', -5)
@@ -97,11 +104,10 @@ function render(data) {
       .attr('text-anchor', 'end')
       .attr('transform', 'rotate(-90)')
 
-
-  g
-    .append('g')
+  yGroup
+    .transition()
+    .duration(500)
     .call(yAxisCall)
-
 
   // Join
   rects = g
