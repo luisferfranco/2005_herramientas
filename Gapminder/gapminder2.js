@@ -138,14 +138,6 @@ function load() {
     years = d3
               .map(data, (d) => d.year)
               .keys()
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-    console.log(years)
->>>>>>> 6ebf0922a6f34c916f7b98160bd40373cd533a02
->>>>>>> 6784ccfc739a229814fbe8efac2c695a1e391c71
-
     // 5. Creamos el intervalo de animación
     d3.interval((d) => {
       render(data, +years[iyear++])
