@@ -79,10 +79,18 @@ xGroup = g
           .attr('transform', `translate(0, ${alto})`)
 yGroup = g.append('g')
 
-// 1. Declaramos los escaladores como variables globales
 x = d3.scaleLog()
 y = d3.scaleLinear()
 r = d3.scaleLinear()
+
+var pausa = false
+var interval
+var years = []
+var iyear = 0
+var data  = []
+
+botonPausa = d3.select('#botonpausa')
+contValue  = d3.select('#continente')
 
 // Objetivo:
 //    Gráfica de burbujas donde en el eje de las X voy a tener el
@@ -90,7 +98,11 @@ r = d3.scaleLinear()
 //    las burbujas será la población
 function render(data, year) {
 
-  data = data.filter((d) => d.year == year )
+  data = data.filter((d) => {
+    c = contValue.node().value
+
+    return (c == 'todos') ? d.year == year : (d.year == year) && (d.continent == c)
+  })
 
   xAxisCall = d3
                 .axisBottom(x)
@@ -111,19 +123,14 @@ function render(data, year) {
             .selectAll('circle')
             .data(data, (d) => d.country)
 
-
   puntos
         .enter()
         .append('circle')
           .attr('cx', (d) => x(d.income))
           .attr('cy', (d) => y(d.life_exp))
-          .attr('r', 100)
+          .attr('r', 0)
           .attr('fill', 'black')
-        // 6. Añadimos un merge() para todos los puntos que
-        //    cambian
         .merge(puntos)
-          // 7. Se añade una transición para los puntos
-          //    (animación)
           .transition()
           .duration(300)
           .attr('cx', (d) => x(d.income))
@@ -137,7 +144,7 @@ function render(data, year) {
         .exit()
         .transition()
         .duration(300)
-        .attr('r', 100)
+        .attr('r', 0)
         .attr('fill', 'red')
         .remove()
 
@@ -172,19 +179,41 @@ function load() {
               d3.max(data, (d) => d.population)])
       .range([5, 50])
 
-    // 3. indice para los años (iyear)
     iyear = 0
-
-    // 4. Un arreglo de strings de todos los años
     years = d3
               .map(data, (d) => d.year)
               .keys()
-    // 5. Creamos el intervalo de animación
-    d3.interval((d) => {
-      render(data, +years[iyear++])
-      iyear %= years.length
-    }, 500)
+
+    this.data = data
+    step(data)
+    interval = d3.interval((d) => { step(data) }, 500)
   })
 }
 
+function step(data) {
+  render(data, +years[iyear++])
+  iyear %= years.length
+}
+
 load()
+
+botonPausa.on('click', () => {
+  if (pausa) {
+    botonPausa
+      .classed('btn-danger', true)
+      .classed('btn-success', false)
+      .html('<i class="fa fa-pause"></i> Pausa ')
+      interval = d3.interval((d) => { step(data) }, 500)
+  } else {
+    botonPausa
+      .classed('btn-danger', false)
+      .classed('btn-success', true)
+      .html('<i class="fa fa-play"></i> Continuar ')
+    interval.stop()
+  }
+  pausa = !pausa
+})
+
+contValue.on('change', () => {
+  render(data, +years[iyear])
+})

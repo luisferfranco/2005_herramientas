@@ -27,6 +27,25 @@
 
       <!-- proyecto -->
       <div class="col-md-12">
+        <div class="row mb-2">
+          <div class="col-md-4">
+            <button id="botonpausa" class="btn btn-danger"><i class="fas fa-pause"></i> Pausa </button>
+          </div>
+          <div class="col-md-4">
+            <!-- https://github.com/johnwalley/d3-simple-slider -->
+          </div>
+          <div class="col-md-4">
+            <select name="continente" id="continente" class="form-control">
+              <option value="todos">Todos</option>
+              <option value="asia">Asia</option>
+              <option value="americas">Americas</option>
+              <option value="africa">Africa</option>
+              <option value="europe">Europe</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12">
         <div class="mb-4 shadow" id="grafica">
         </div>
       </div>
@@ -37,8 +56,9 @@
     </div>
   </div>
 
-<script src="gapminder2.js"></script>
+<script src="gapminder3.js"></script>
 
+<script src="https://kit.fontawesome.com/f0abc9c17c.js" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
