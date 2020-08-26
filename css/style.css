@@ -53,3 +53,9 @@ body {
   padding-right: 10px;
   border: 1px solid #000000;
 }
+
+.d3-tip {
+  color: #555;
+  background-color: #ddd;
+  font-family: "Roboto Condensed";
+}
