@@ -76,3 +76,9 @@ body {
   fill: none;
   pointer-events: all;
 }
+
+#slider-container {
+  position: relative;
+  height:30px;
+  background-color: #eeeef5;
+}

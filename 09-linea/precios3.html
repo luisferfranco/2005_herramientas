@@ -4,12 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mis Proyectos de D3</title>
+
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
   <link rel="stylesheet" href="/css/style.css">
+
   <script src="/js/d3.js"></script>
   <script src="/js/d3-simple-slider.js"></script>
+  <script src="/js/d3RangeSlider.js"></script>
+  <link rel="stylesheet" href="/css/d3RangeSlider.css">
 
   <!--
+    https://rasmusfonseca.github.io/d3RangeSlider/
     https://github.com/RasmusFonseca/d3RangeSlider
   -->
 
@@ -31,12 +36,17 @@
       </div>
     </div>
 
-      <div class="col-md-12">
-        <select name="stock" id="stock" class="form-control">
-          <option value="amzn">Amazon (amzn)</option>
-          <option value="nflx">Netflix (nflx)</option>
-          <option value="tsla">Tesla (tsla)</option>
-        </select>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <select name="stock" id="stock" class="form-control">
+            <option value="amzn">Amazon (amzn)</option>
+            <option value="nflx">Netflix (nflx)</option>
+            <option value="tsla">Tesla (tsla)</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <div id="slider-container"></div>
+        </div>
       </div>
 
       <!-- proyecto -->
@@ -136,14 +146,37 @@ overlay = g
           .on("mouseover", () => { focus.style("display", null); })
           .on("mouseout", () => { focus.style("display", "none"); })
 
+// Codigo para el slider
+slider = createD3RangeSlider(0, 100, "#slider-container")
+slider.range(0, 100)
+slideScaler = d3
+                .scaleTime()
+                .domain([0, 100])
+
 function render(data, stock='amzn') {
-    lin
-      .attr('fill', 'none')
+
+  rango = slider.range()
+  data = data.filter((d) => {
+    return (d.Date >= slideScaler(rango.begin)) && (d.Date <= slideScaler(rango.end))
+  })
+  x.domain(d3.extent(data, d => d.Date))
+  y.domain([d3.min(data, d => d.Close) / 1.05,
+            d3.max(data, d => d.Close) * 1.05])
+
+  xAxis
       .transition()
       .duration(500)
-      .attr('stroke', c(stock))
-      .attr('stroke-width', 3)
-      .attr('d', linea(data))
+      .call(xAxisCall.scale(x))
+  yAxis
+    .transition()
+    .duration(500)
+    .call(yAxisCall.scale(y))
+
+  lin
+    .attr('fill', 'none')
+    .attr('stroke', c(stock))
+    .attr('stroke-width', 3)
+    .attr('d', linea(data))
 }
 
 function load(f = 'amzn') {
@@ -155,20 +188,10 @@ function load(f = 'amzn') {
     })
 
     // x.domain(d3.min(data, d => d.year), d3.max(data, d => d.year))
-    x.domain(d3.extent(data, d => d.Date))
-    y.domain([d3.min(data, d => d.Close) / 1.05,
-              d3.max(data, d => d.Close) * 1.05])
+    slideScaler.range(d3.extent(data, d => d.Date))
 
     xAxisCall = d3.axisBottom()
 
-    xAxis
-      .transition()
-      .duration(500)
-      .call(xAxisCall.scale(x))
-    yAxis
-      .transition()
-      .duration(500)
-      .call(yAxisCall.scale(y))
 
     render(data, f)
 
@@ -205,6 +228,10 @@ load()
 stock.on('change', () => {
   f = stock.node().value
   load(f)
+})
+
+slider.onChange(() => {
+  load(stock.node().value)
 })
 
 </script>
