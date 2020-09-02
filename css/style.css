@@ -59,3 +59,20 @@ body {
   background-color: #ddd;
   font-family: "Roboto Condensed";
 }
+
+.focus circle {
+  stroke: #ff0000;
+  stroke-width: 2px;
+  fill: #ffff00;
+}
+
+.hover-line {
+  stroke: #6F257F;
+  stroke-width: 2px;
+  stroke-dasharray: 3,3;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
