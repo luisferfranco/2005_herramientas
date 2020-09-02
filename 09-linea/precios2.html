@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Proyectos de D3</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/d3.js"></script>
+  <script src="/js/d3-simple-slider.js"></script>
+  <script src="/js/d3-tip.js"></script>
+</head>
+<body>
+
+  <!-- navbar -->
+  <div class="navbar-navbar-expand-lg navbar-light bg-light shadow mb-4">
+    <div class="container-fluid-nav text-center">
+      <a href="#"><img src="/img/unir.png" class="logo"></a>
+    </div>
+  </div>
+  <!-- /navbar -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h1>Herramientas de Visualización</h1>
+      </div>
+    </div>
+
+      <div class="col-md-12">
+        <select name="stock" id="stock" class="form-control">
+          <option value="amzn">Amazon (amzn)</option>
+          <option value="nflx">Netflix (nflx)</option>
+          <option value="tsla">Tesla (tsla)</option>
+        </select>
+      </div>
+
+      <!-- proyecto -->
+      <div class="col-md-12">
+        <div class="mb-4 shadow" id="grafica">
+        </div>
+      </div>
+      <!-- /proyectos -->
+      <div class="col-md-12">
+        <h3>Gráficas de líneas</h3>
+      </div>
+    </div>
+  </div>
+
+<script>
+ancho_total = d3.select('#grafica').style('width').slice(0,-2)
+alto_total  = ancho_total * 9 / 16
+margin = { left: 75, right: 10, top: 50, bottom: 75 }
+
+ancho = ancho_total - margin.left - margin.right
+alto  = alto_total - margin.top - margin.bottom
+
+svg = d3
+        .select('#grafica')
+        .append('svg')
+        .attr('width', ancho_total)
+        .attr('height', alto_total)
+        .classed('graf', true)
+
+g = svg
+      .append('g')
+      .attr('width', ancho_total - margin.left - margin.right)
+      .attr('height', alto_total - margin.top - margin.bottom)
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
+parseTime = d3.timeParse('%Y-%m-%d')
+
+x = d3
+      .scaleTime()
+      .range([0, ancho])
+y = d3
+      .scaleLinear()
+      .range([alto, 0])
+c = d3
+      .scaleOrdinal()
+      .domain(['amzn', 'nflx', 'tsla'])
+      .range(['#264653', '#e9c46a', '#e76f51'])
+
+linea = d3
+            .line()
+            .x(d => x(d.Date))
+            .y(d => y(d.Close))
+
+stock = d3.select('#stock')
+
+xAxis = g
+          .append('g')
+          .attr('transform', `translate(0, ${alto})`)
+yAxisCall = d3.axisLeft()
+yAxis = g
+          .append('g')
+
+lin = g.append('path')
+
+// Codigo del nuevo tipo de tooltip
+//
+// https://bl.ocks.org/alandunning/cfb7dcd7951826b9eacd54f0647f48d3
+
+
+function render(data, stock='amzn') {
+    lin
+      .attr('fill', 'none')
+      .transition()
+      .duration(500)
+      .attr('stroke', c(stock))
+      .attr('stroke-width', 3)
+      .attr('d', linea(data))
+}
+
+function load(f = 'amzn') {
+  d3.csv(`/datos/${f}.csv`).then(data => {
+    console.log(data)
+    data.forEach(d => {
+      d.Date = parseTime(d.Date)
+      d.Close = +d.Close
+    })
+
+    // x.domain(d3.min(data, d => d.year), d3.max(data, d => d.year))
+    x.domain(d3.extent(data, d => d.Date))
+    y.domain([d3.min(data, d => d.Close) / 1.05,
+              d3.max(data, d => d.Close) * 1.05])
+
+    xAxisCall = d3.axisBottom()
+
+    xAxis
+      .transition()
+      .duration(500)
+      .call(xAxisCall.scale(x))
+    yAxis
+      .transition()
+      .duration(500)
+      .call(yAxisCall.scale(y))
+
+    render(data, f)
+  })
+}
+
+load()
+
+stock.on('change', () => {
+  f = stock.node().value
+  load(f)
+})
+
+</script>
+
+<script src="https://kit.fontawesome.com/f0abc9c17c.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>
