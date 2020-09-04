@@ -224,7 +224,7 @@ function load() {
         .attr('width', ancho_slider-20)
         .attr('height', 50)
         .append('g')
-        .attr('transform', `translate(1'. 30)`)
+        .attr('transform', `translate(10, 8)`)
         .call(slider)
 
     this.data = data
