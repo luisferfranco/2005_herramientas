@@ -1,0 +1,35 @@
+.logo-superior {
+  height: 75px;
+}
+
+.encabezado {
+  font-family: "Suez One";
+  font-size: 45px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Suez One";
+}
+
+body {
+  background-color: #ddd;
+}
+
+.viz {
+  background-color: #ccc;
+}
+
+#slider-container {
+  position: relative;
+  height: 30px;
+  background-color: #eeeef5;
+}
+
+.axis-label {
+  font-family: 'roboto condensed';
+}

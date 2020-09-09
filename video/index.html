@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>UNIR :: Herramientas de Visualización</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <script src="/js/d3.js"></script>
+
+  <link rel="stylesheet" href="/css/d3RangeSlider.css">
+  <script src="/js/d3RangeSlider.js"></script>
+</head>
+<body>
+
+  <div class="navbar-navbar-expand-lg navbar-light bg-light shadow mb-4">
+    <div class="container-fluid-nav text-center">
+      <a href="/"><img src="/img/logounir.png" class="logo-superior"></a>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col-12 text-center">
+        <span class="encabezado">Ventas de Juegos a Nivel Mundial</span>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="card-deck mb-4 col-12">
+
+        <div class="card shadow bg-secondary text-white">
+          <div class="card-header">Controles</div>
+          <div class="card-body">
+            <div id='parametros' >
+              <div id="slider-container" class="mt-4 mb-4"></div>
+              <div class="mb-2">
+                <label for="plataforma">Plataforma</label>
+                <select name="plataforma" id="plataforma" class="form-control">
+                  <option value="todas">Todas</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                Categoría
+                <select name="categoria" id="categoria" class="form-control">
+                  <option value="todas">Todas</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow">
+          <div class="card-header">Ventas Anuales Totales</div>
+          <div class="card-body text-primary">
+            <div id='venta'></div>
+          </div>
+        </div>
+
+        <div class="card shadow">
+          <div class="card-header">Ventas por Región</div>
+          <div class="card-body"><div class="col-md-4" id='region'></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="card-deck mb-4 col-12">
+        <div class="card shadow">
+          <div class="card-header">Principales Distribuidores</div>
+          <div class="card-body">
+            <div id='totales'></div>
+          </div>
+        </div>
+        <div class="card shadow">
+          <div class="card-header">Críticas por Categoría y Ventas</div>
+          <div class="card-body">
+            <div id='critica'>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+margin = { top: 10, right: 25, bottom: 25, left: 35}
+
+anchototal4 = d3.select('#venta').style('width').slice(0,-2)
+altototal4  = anchototal4 * 9 / 16
+ancho4      = anchototal4 - margin.left - margin.right
+alto4       = altototal4 - margin.top - margin.bottom
+
+anchototal6 = d3.select('#totales').style('width').slice(0,-2)
+altototal6  = anchototal6 * 9 / 16
+ancho6      = anchototal6 - margin.left - margin.right
+alto6       = altototal6 - margin.top - margin.bottom
+
+
+// SVG donde se pintará la primera gráfica
+//
+svgVenta = d3
+            .select('#venta')
+            .append('svg')
+            .attr('width', anchototal4)
+            .attr('height', altototal4)
+gVenta = svgVenta
+          .append('g')
+          .attr('transform', `translate(${ margin.left }, ${ margin.top})`)
+// Escaladores
+//
+xVenta = d3.scaleLinear().range([0, ancho4])
+yVenta = d3.scaleLinear().range([alto4, 0])
+// Función para generar líneas
+//
+generadorVenta = d3.line()
+  .x(d =>  xVenta(d.key))
+  .y(d => yVenta(d.value))
+// Linea
+//
+lineaVenta = gVenta.append('path')
+
+// Ejes X y Y
+// Los call se pueden usar en otras gráficas
+//
+xAxisCall = d3.axisBottom()
+yAxisCall = d3.axisLeft()
+xAxisVenta = gVenta
+          .append('g')
+          .attr('class', 'axis-label')
+          .attr('transform', `translate(0, ${alto4})`)
+yAxisVenta = gVenta.append('g')
+          .attr('class', 'axis-label')
+
+// El escalador de color se puede usar para todos los casos
+color = d3.scaleOrdinal(d3.schemeCategory10)
+
+
+// GRAFICO 2
+// Pie con las ventas por región
+// https://blockbuilder.org/rafa79/c9887a08eb2b5ca306194112a439243d
+svgRegion = d3
+  .select('#region')
+  .append('svg')
+  .attr('width', anchototal4)
+  .attr('height', altototal4)
+gRegion = svgRegion
+  .append('g')
+  .attr('transform', `translate(${ ancho4 / 2 + margin.right }, ${ alto4 / 2 + margin.top})`)
+
+// GRAFICO 3
+// Ventas por los principales distribuidores (publishers)
+//
+svgTotal = d3
+            .select('#totales')
+            .append('svg')
+            .attr('width', anchototal6)
+            .attr('height', altototal6)
+gTotal = svgTotal
+            .append('g')
+            .attr('transform', `translate(${ margin.left }, ${ margin.top })`)
+// Escaladores
+//
+xTotal = d3.scaleLinear().range([0, ancho6])
+yTotal = d3.scaleLinear().range([alto6, 0])
+// Función para generar líneas
+//
+generadorTotal = d3.line()
+  .x(d =>  xTotal(d.key))
+  .y(d => yTotal(d.value))
+// Linea
+//
+lineaTotal = []
+for (i = 0; i < 5; i++) {
+  lineaTotal.push(gTotal.append('path'))
+}
+
+// Ejes X y Y
+xAxisTotal = gTotal
+          .append('g')
+          .attr('class', 'axis-label')
+          .attr('transform', `translate(0, ${alto6})`)
+yAxisTotal = gTotal.append('g')
+          .attr('class', 'axis-label')
+
+
+// GRAFICA 4
+// Scatter para comparar críticos vs. usuarios
+//
+svgCritica = d3
+            .select('#critica')
+            .append('svg')
+            .attr('width', anchototal6)
+            .attr('height', altototal6)
+gCrit = svgCritica
+            .append('g')
+            .attr('transform', `translate(${ margin.left }, ${ margin.top })`)
+// Escaladores
+//
+xCrit = d3.scaleLinear().range([0, ancho6])
+yCrit = d3.scaleLinear().range([alto6, 0])
+rCrit = d3.scaleLinear().range([2, 50])
+// Ejes X y Y
+xAxisCrit = gCrit
+          .append('g')
+          .attr('class', 'axis-label')
+          .attr('transform', `translate(0, ${alto6})`)
+yAxisCrit = gCrit.append('g')
+          .attr('class', 'axis-label')
+
+slider = createD3RangeSlider(0, 100, "#slider-container")
+slider.range(begin=0, end=100)
+slideScaler = d3.scaleLinear().domain([0, 100])
+
+var data
+
+plataformaSelect = d3.select('#plataforma')
+categoriaSelect = d3.select('#categoria')
+
+// render de los datos
+function renderLinea(data) {
+  // Función de agregación, es el equivalente a un groupBy()
+  // agrega por ano y suma las ventas_globales
+  // regresa un arreglo (key, value)
+  //
+  ventas = d3
+            .nest()
+            .key(d => d.ano)
+            .rollup(v => d3.sum(v, d => d.ventas_globales))
+            .entries(data)
+  // Eliminamos los datos que no tienen año
+  ventas = ventas.filter(d => d.key > 0)
+
+  // Render de la línea de venta
+  xVenta.domain(d3.extent(ventas, d => d.key))
+  yVenta.domain([0, d3.max(ventas, d => d.value) * 1.05])
+
+  // Generamos los ejes
+  //
+  xAxisVenta.call(xAxisCall.scale(xVenta))
+  yAxisVenta.call(yAxisCall.scale(yVenta))
+
+  lineaVenta.attr('fill', 'none')     // Queremos una linea, no un área
+    .attr('stroke-width', 3)
+    .attr('stroke', '#c00')
+    .attr('d', generadorVenta(ventas))
+
+
+  // render de la gráfica apilada
+  // stack = d3.stack().keys(['usa', 'japon', 'europa', 'otro'])
+  // series = stack(stacked)
+}
+
+function renderPie(data) {
+  data = d3
+            .nest()
+            // .key(d => d.region)
+            .rollup(v => {
+              return {
+                usa: d3.sum(v, d => d.ventas_usa),
+                europa: d3.sum(v, d => d.ventas_europa),
+                japon: d3.sum(v, d => d.ventas_japon),
+                otros: d3.sum(v, d => d.ventas_otros),
+              }
+            })
+            .entries(data)
+
+  pie = d3
+    .pie()
+    .value(d => d.value)
+
+  arc = d3
+    .arc()
+    .innerRadius(0)
+    .outerRadius(alto4 / 2)
+
+  part = gRegion.selectAll('.part')
+            .data(pie(d3.entries(data)))
+            .enter()
+            .append('g')
+  part
+    .append('path')
+    .attr('d', arc)
+    .attr('fill', (d, i) => color(i))
+
+}
+
+function renderTotal(data) {
+  data = data.filter(d => d.ano >= 1980)
+
+  // Obtenemos quienes son los cinco primeros distribuidores
+  // (publishers)
+  pub = d3
+    .nest()
+    .key(d => d.fabricante)
+    .rollup(v => d3.sum(v, d => d.ventas_globales))
+    .entries(data)
+
+  xTotal.domain([d3.min(data, d => d.ano), d3.max(data, d => d.ano)])
+  xAxisTotal.call(xAxisCall.scale(xTotal))
+
+  pub = pub.sort((a, b) => d3.descending(a.value, b.value)).slice(0, 5)
+
+  // Necesitamos conocer quién fue quien vendió más por año, para
+  // poner bien las escalas de Y
+  maxy = 0
+  pub.forEach((d, i) => {
+    // Filtramos por los valores de los fabricantes
+    //
+    ven = data.filter(v => v.fabricante == d.key)
+    ven = d3
+      .nest()
+      .key(d => d.ano)
+      .rollup(v => d3.sum(v, d => d.ventas_globales))
+      .entries(ven)
+    ven = ven.filter(d => d.key > 0)
+    maxy = d3.max([maxy, d3.max(ven, d => d.value)])
+  })
+  yTotal.domain([0, maxy * 1.05])
+  yAxisTotal.call(yAxisCall.scale(yTotal))
+
+  pub.forEach((d, i) => {
+    // Filtramos por los valores de los fabricantes
+    //
+    ven = data.filter(v => v.fabricante == d.key)
+    ven = d3
+      .nest()
+      .key(d => d.ano)
+      .rollup(v => d3.sum(v, d => d.ventas_globales))
+      .entries(ven)
+    ven = ven.filter(d => d.key > 0)
+
+    lineaTotal[i]
+      .attr('fill', 'none')
+      .attr('stroke', color(i))
+      .attr('stroke-width', 3)
+      .attr('d', generadorTotal(ven))
+  })
+}
+
+function renderCrit(data) {
+  // console.log(data)
+
+  // data = data.filter(d => {
+  //   return (d.score_usuarios > 0) & (d.score_criticos > 0)
+  // })
+
+  xCrit.domain([0, 100])
+  yCrit.domain([0, 100])
+  rCrit.domain([d3.min(data, d => d.ventas_globales), d3.max(data, d => d.ventas_globales)])
+  xAxisCrit.call(xAxisCall.scale(xCrit))
+  yAxisCrit.call(yAxisCall.scale(yCrit))
+
+  cats = d3.map(data, function(d){ return d.genero }).keys()
+
+  p = gCrit
+        .selectAll('circle')
+        .data(data)
+
+  p
+    .enter()
+    .append('circle')
+    .merge(p)
+    .attr('cx', d => xCrit(d.score_criticos))
+    .attr('cy', d => yCrit(d.score_usuarios))
+    .attr('r', d => rCrit(d.ventas_globales))
+    .attr('fill', d => color(cats.indexOf(d.genero)))
+    .attr('stroke', '#ccc')
+    .attr('fill-opacity', '0.5')
+
+  p.exit()
+    .remove()
+
+}
+
+// carga de datos
+function load() {
+  d3.csv('/datos/video.csv').then((data) => {
+    data.forEach(d => {
+      d.ano             = +d.ano
+      d.score_criticos  = +d.score_criticos
+      d.score_usuarios  = +d.score_usuarios
+      d.ventas_europa   = +d.ventas_europa
+      d.ventas_globales = +d.ventas_globales
+      d.ventas_japon    = +d.ventas_japon
+      d.ventas_otro     = +d.ventas_otro
+      d.ventas_usa      = +d.ventas_usa
+
+      // stack = {'ano': d.ano, 'globales': d.ventas_globales,
+      //           'usa': d.ventas_usa, 'japon': d.ventas_japon,
+      //           'europa': d.ventas_europa, 'otro': d.ventas_otro}
+      // stacked.push(stack)
+    })
+    // Los datos en el origen vienen desordenados
+    //
+    data = data.filter(d => d.ano > 0)
+    data = data.filter(d => {
+      return (d.score_usuarios > 0) & (d.score_criticos > 0)
+    })
+    data = data.sort((a, b) => d3.ascending(a.ano, b.ano))
+
+    this.data = data
+
+    // Cuáles plataformas y categorías existen
+    plataformas = d3.map(data, (d) => d.plataforma).keys()
+    plataformas.forEach(d => {
+      plataformaSelect
+              .append('option')
+              .attr('value', d)
+              .text(d)
+    })
+
+    categorias = d3.map(data, (d) => d.genero).keys()
+    console.log(categorias)
+    categorias.forEach(d => {
+      categoriaSelect
+        .append('option')
+        .attr('value', d)
+        .text(d)
+    })
+
+
+    slideScaler.range(d3.extent(data, d => d.ano))
+
+    render()
+  })
+}
+
+load()
+
+function render() {
+  sr = slider.range()
+  dt = data.filter((d) => {
+    return (d.ano >= slideScaler(sr.begin) && (d.ano <= slideScaler(sr.end)))
+  })
+
+  p = plataformaSelect.node().value
+  if (p != 'todas') {
+    dt = dt.filter((d) => d.plataforma == p)
+  }
+
+  c = categoriaSelect.node().value
+  if (c != 'todas') {
+    dt = dt.filter((d) => d.genero == c)
+  }
+
+  renderLinea(dt)
+  renderPie(dt)
+  renderTotal(dt)
+  renderCrit(dt)
+}
+
+slider.onChange(() => {
+  render()
+})
+
+plataformaSelect.on('change', () => {
+  render()
+})
+
+categoriaSelect.on('change', () => {
+  render()
+})
+
+</script>
+
+<script src="https://kit.fontawesome.com/f0abc9c17c.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</body>
+</html>
